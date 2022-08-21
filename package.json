@@ -3,8 +3,13 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
-  "devDependencies": {
-    "@playwright/test": "^1.25.0"
+  "scripts": {
+    "get-keywords": "ts-node -T keywords-script/get-keywords.ts"
   },
-  "scripts": {}
+  "devDependencies": {
+    "@playwright/test": "^1.25.0",
+    "csv-parse": "^5.3.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.7.4"
+  }
 }
