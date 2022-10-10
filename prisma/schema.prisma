@@ -1,0 +1,25 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Job {
+  id       Int       @id @default(autoincrement())
+  indeedId String
+  keywords JobTech[]
+}
+
+model Tech {
+  id   Int       @id @default(autoincrement())
+  name String
+  jobs JobTech[]
+}
+
+model JobTech {
+  job    Job  @relation(fields: [jobId], references: [id])
+  jobId  Int
+  tech   Tech @relation(fields: [techId], references: [id])
+  techId Int
+
+  @@id([jobId, techId])
+}
