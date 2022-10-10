@@ -10,9 +10,17 @@ model Job {
 }
 
 model Tech {
-  id   Int       @id @default(autoincrement())
-  name String
-  jobs JobTech[]
+  id       Int       @id @default(autoincrement())
+  name     String
+  jobs     JobTech[]
+  keywords Keyword[]
+}
+
+model Keyword {
+  id     Int    @id @default(autoincrement())
+  tech   Tech   @relation(fields: [techId], references: [id])
+  techId Int
+  name   String
 }
 
 model JobTech {
