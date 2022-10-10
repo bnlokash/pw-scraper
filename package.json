@@ -4,11 +4,13 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "get-keywords": "ts-node -T keywords-script/get-keywords.ts"
+    "get-keywords": "ts-node -T keywords-script/get-keywords.ts",
+    "dev": "playwright-watch exec yarn playwright test ./tests/indeed-viewjob.spec.ts --headed"
   },
   "devDependencies": {
     "@playwright/test": "^1.25.0",
     "csv-parse": "^5.3.0",
+    "playwright-watch": "^1.3.23",
     "ts-node": "^10.9.1",
     "typescript": "^4.7.4"
   }

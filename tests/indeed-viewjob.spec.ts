@@ -2,6 +2,8 @@ import { test } from '@playwright/test';
 import keywords from '../keywords-script/out.json'
 import extraKeywords from '../keywords-script/extra-keywords.json'
 import synonymsList from '../keywords-script/synoyms.json'
+import { ids } from '../out/job-ids.json'
+import fs from 'fs'
 
 const masterKeywords = [...keywords, ...extraKeywords]
 
@@ -34,19 +36,22 @@ const parseKeywords = (jobDescriptionText: string) => {
   return Array.from(result)
 }
 
-test('scrape viewjob page', async ({ page }) => {
-  const jobId1 = 'ecbb3a4e1408b26c'
-  const jobId2 = '5f55437238c8fcc7'
-  const jobId3 = 'a9f9ed259248e5cb'
-  const jobId4 = '89ff9c47cf504485'
+const scrapeJob = async (page: any, jobId: string) => {
+  await page.goto(`https://ca.indeed.com/viewjob?hl=en&jk=${jobId}`)
 
-  await page.goto(`https://ca.indeed.com/viewjob?hl=en&jk=${jobId4}`)
 
   const jobTitle = await (await page.locator('.jobsearch-JobInfoHeader-title')).innerText()
 
-  const companyName = await (await page.locator('.jobsearch-InlineCompanyRating a')).first().innerText()
+  let companyName
+  const doesCompanyNameLinkExist = await page.$('.jobsearch-InlineCompanyRating a')
+  console.log(doesCompanyNameLinkExist)
+  if (doesCompanyNameLinkExist) {
+    companyName = await (await page.locator('.jobsearch-InlineCompanyRating a')).first().innerText()
+  } else {
+    companyName = await (await page.locator('.jobsearch-InlineCompanyRating-companyHeader')).first().innerText()
+  }
 
-  const location = await (await page.locator('.jobsearch-JobInfoHeader-subtitle.jobsearch-DesktopStickyContainer-subtitle > div:not(.jobsearch-InlineCompanyRating) > div')).innerText()
+  const location = await (await page.locator('.jobsearch-JobInfoHeader-subtitle.jobsearch-DesktopStickyContainer-subtitle > div:not(.jobsearch-InlineCompanyRating) > div')).first().innerText()
 
   // const jobType = await (await page.locator('span.jobsearch-JobMetadataHeader-item')).innerText()
 
@@ -60,7 +65,19 @@ test('scrape viewjob page', async ({ page }) => {
     location,
     keywords: jdKeywords
   }
-  console.log(final)
 
-  await page.pause()
+  return final
+}
+
+test('scrape viewjob page', async ({ page }) => {
+  const result: Record<string, Object> = {}
+
+  for(const id of ids) {
+    const scraped = await scrapeJob(page, id)
+    result[id] = scraped
+  }
+
+  fs.writeFileSync('out/scraped.json', JSON.stringify(result, undefined, 2))
+
+  console.log('done')
 })

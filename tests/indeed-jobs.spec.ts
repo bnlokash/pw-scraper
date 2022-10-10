@@ -1,20 +1,24 @@
 import { test, expect } from '@playwright/test';
+const fs = require('fs')
 
 test('scrape indeed job ids', async ({ page }) => {
     const startUrl = 'https://ca.indeed.com/jobs?q=Software%20Engineer&l=North%20York%2C%20ON'
 
     let offset = 0
-    const ids: string[] = []
+    const ids: Set<string> = new Set([])
 
-    await page.goto(startUrl)
+    // stop when list is same size two loops in a row
+    let previousSize = 0
 
     do {
-        const newIds = await scrapeIdsFromCurrentPage(page)
-        ids.push(...newIds)
+        previousSize = ids.size
         await page.goto(startUrl + `&start=${offset}`)
+        const newIds = await scrapeIdsFromCurrentPage(page)
+        newIds.forEach(id => ids.add(id))
         offset += 10 
-        console.log(new Set(ids).size)
-    } while (true)
+    } while (ids.size < 100)
+
+    fs.writeFileSync('out/job-ids.json', JSON.stringify({ ids: Array.from(ids.values()) }, undefined, 2))
 
 })
 
