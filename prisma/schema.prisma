@@ -9,7 +9,7 @@ generator client {
 
 model Job {
   id       Int       @id @default(autoincrement())
-  indeedId String
+  indeedId String    @unique
   keywords JobTech[]
 }
 
