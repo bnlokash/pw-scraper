@@ -6,7 +6,8 @@
   "scripts": {
     "get-keywords": "ts-node -T keywords-script/get-keywords.ts",
     "dev": "playwright-watch exec yarn playwright test ./tests/indeed-viewjob.spec.ts --headed",
-    "server": "ts-node -T server.ts"
+    "server": "ts-node -T server.ts",
+    "seed-db": "ts-node -T keywords-script/tech-keywords-to-db.ts"
   },
   "devDependencies": {
     "@playwright/test": "^1.25.0",
