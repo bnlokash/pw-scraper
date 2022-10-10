@@ -22,7 +22,7 @@
   "Go": ["golang"],
   "ELK Stack": ["ELK"],
   "Microsoft Dynamics 365": ["MS Dynamics"],
-  "React.js": ["react", "reactjs"],
+  "React": ["react", "reactjs", "React.js"],
   "Symfony": ["symphony"],
   "TDD": ["test-driven development", "test driven development"],
   "DigitalOcean": ["digital ocean"],
