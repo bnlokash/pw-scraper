@@ -1,5 +1,8 @@
 import playwright, { Page } from 'playwright'
 import fs from 'fs'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 const scrabeJobIds = async (page: Page) => {
   const startUrl = 'https://ca.indeed.com/jobs?q=Software%20Engineer&l=North%20York%2C%20ON'
@@ -16,11 +19,9 @@ const scrabeJobIds = async (page: Page) => {
       await page.goto(startUrl + `&start=${offset}`, { waitUntil: 'load'})
       const newIds = await scrapeIdsFromCurrentPage(page)
       console.log('newIds', newIds)
-      newIds.forEach(id => ids.add(id))
+      newIds.forEach(id => id && ids.add(id))
       offset += 10 
   } while (ids.size < 100)
-
-  fs.writeFileSync('out/job-ids.json', JSON.stringify({ ids: Array.from(ids.values()) }, undefined, 2))
 
   return ids
 }
@@ -34,15 +35,26 @@ const scrapeIdsFromCurrentPage = async (page: Page) => {
     return jobIds.filter(Boolean)
 }
 
+const writeIdsToDb = async (ids: string[]) => {
+  await prisma.job.createMany({
+    data: ids.map(id => {
+      return { indeedId: id }
+    }), 
+    skipDuplicates: true
+  })
+}
+
 (async () => {
   const browser = await playwright.chromium.launch({ headless: false })
   const page = await browser.newPage()
 
   try {
-    await scrabeJobIds(page)
+    const ids = await scrabeJobIds(page)
+    await writeIdsToDb(Array.from(ids))
   } catch(err) {
     console.error(err)
   }
 
   console.log('done')
+  process.exit()
 })()
